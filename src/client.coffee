@@ -1058,13 +1058,15 @@ class Dropbox.Client
   # to obtain all the changes that happened in the user's Dropbox (or
   # application directory) between the two calls.
   #
-  # @param {Dropbox.Http.PulledChanges, String} cursor (optional) the result of
-  #   a previous {Dropbox.Client#pullChanges} call, or a string containing a
-  #   tag representing the Dropbox state that is used as the baseline for the
-  #   change list; this should either be the {Dropbox.Http.PulledChanges}
-  #   obtained from a previous call to {Dropbox.Client#pullChanges}, the return
-  #   value of {Dropbox.Http.PulledChanges#cursor}, or null / omitted on the
-  #   first call to {Dropbox.Client#pullChanges}
+  # @param {Dropbox.Http.PulledChanges, String, Object} cursor (optional) 
+  #   the result of a previous {Dropbox.Client#pullChanges} call, or a string 
+  #   containing a tag representing the Dropbox state that is used as the 
+  #   baseline for the change list; this should either be the
+  #   {Dropbox.Http.PulledChanges} obtained from a previous call to 
+  #   {Dropbox.Client#pullChanges}, the return value of 
+  #   {Dropbox.Http.PulledChanges#cursor}, or null / omitted on the first 
+  #   call to {Dropbox.Client#pullChanges}. Optionally, you may pass in an
+  #   object that represents the params for the /delta HTTP request
   # @param {function(Dropbox.ApiError, Dropbox.Http.PulledChanges)} callback
   #   called with the result of the /delta HTTP request; if the call
   #   succeeds, the second parameter is a {Dropbox.Http.PulledChanges}
@@ -1079,8 +1081,13 @@ class Dropbox.Client
     if cursor
       if cursor.cursorTag  # cursor is a Dropbox.Http.PulledChanges instance
         params = { cursor: cursor.cursorTag }
-      else
+      else if (typeof cursor is 'string')
         params = { cursor: cursor }
+      else if (typeof cursor is 'object')
+        params = cursor
+      else 
+        throw new Error(
+          'Expected Dropbox.Http.PulledChanges, string, or param object.');
     else
       params = {}
 
